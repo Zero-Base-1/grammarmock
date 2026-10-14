@@ -1,0 +1,34 @@
+{
+  "name": "grammarmock",
+  "version": "1.0.0",
+  "description": "Automata-Driven Procedural Mock Data Generator",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "grammarmock": "./bin/grammarmock.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "start": "node ./bin/grammarmock.js"
+  },
+  "keywords": [
+    "mock-data",
+    "automata",
+    "regular-grammar",
+    "regex",
+    "generator",
+    "formal-languages"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.0",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
+  }
+}

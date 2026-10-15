@@ -1,6 +1,6 @@
 import { Token, TokenType } from './tokens.js';
 import { Lexer } from './lexer.js';
-import { ASTNode, ConcatNode, UnionNode, RepetitionNode, EmptyNode } from '../ast/types.js';
+import { ASTNode } from '../ast/types.js';
 
 export class ParserError extends Error {
   constructor(message: string, public position: number) {
@@ -35,9 +35,6 @@ export class Parser {
     return node;
   }
 
-  /**
-   * Union: Expression ('|' Expression)*
-   */
   private parseUnion(): ASTNode {
     const options: ASTNode[] = [this.parseConcat()];
 
@@ -55,9 +52,6 @@ export class Parser {
     };
   }
 
-  /**
-   * Concat: Factor*
-   */
   private parseConcat(): ASTNode {
     const children: ASTNode[] = [];
 
@@ -82,9 +76,6 @@ export class Parser {
     };
   }
 
-  /**
-   * Factor: Atom Quantifier?
-   */
   private parseFactor(): ASTNode {
     const atom = this.parseAtom();
 
@@ -108,15 +99,10 @@ export class Parser {
     return atom;
   }
 
-  /**
-   * Atom: Literal | CharClass | '(' Expression ')' | Anchor
-   */
   private parseAtom(): ASTNode {
     const tok = this.peek();
 
     if (tok.type === TokenType.ANCHOR_START || tok.type === TokenType.ANCHOR_END) {
-      // Anchors (^, $) are structural assertions matching start/end of string.
-      // In generative grammars, start and end are intrinsic to S0 and ε-accept states.
       this.advance();
       return { type: 'empty' };
     }

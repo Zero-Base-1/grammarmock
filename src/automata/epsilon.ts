@@ -1,10 +1,6 @@
-import { State, Transition } from './state.js';
+import { State } from './state.js';
 import { NFA } from './nfa.js';
 
-/**
- * Computes the epsilon closure of a given state:
- * The set of all states reachable from `state` via zero or more epsilon transitions.
- */
 export function getEpsilonClosure(startState: State): Set<State> {
   const closure = new Set<State>([startState]);
   const stack: State[] = [startState];
@@ -22,11 +18,6 @@ export function getEpsilonClosure(startState: State): Set<State> {
   return closure;
 }
 
-/**
- * Normalizes an NFA by eliminating epsilon transitions.
- * Produces an equivalent NFA where transitions are strictly labeled with terminals
- * (character literals or character classes) and accept states are preserved via closure.
- */
 export function eliminateEpsilons(nfa: NFA): NFA {
   const allStates = nfa.getAllStates();
   const closureMap = new Map<State, Set<State>>();
@@ -35,7 +26,6 @@ export function eliminateEpsilons(nfa: NFA): NFA {
     closureMap.set(s, getEpsilonClosure(s));
   }
 
-  // Create new state mapping
   const newStateMap = new Map<number, State>();
   const getOrCreate = (id: number): State => {
     let st = newStateMap.get(id);
@@ -52,7 +42,6 @@ export function eliminateEpsilons(nfa: NFA): NFA {
     const newS = getOrCreate(s.id);
     const closure = closureMap.get(s)!;
 
-    // If any state in closure is an accept state, this state is also accepting
     for (const member of closure) {
       if (member.isAccept) {
         newS.isAccept = true;
@@ -61,13 +50,11 @@ export function eliminateEpsilons(nfa: NFA): NFA {
       }
     }
 
-    // For every state in the closure, find non-epsilon transitions
     const seenTransitions = new Set<string>();
 
     for (const member of closure) {
       for (const t of member.transitions) {
         if (t.label.type !== 'epsilon') {
-          // Target state in new NFA
           const newTarget = getOrCreate(t.target.id);
           const key = `${JSON.stringify(t.label)}->${newTarget.id}`;
 

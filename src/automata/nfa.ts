@@ -34,9 +34,6 @@ export class NFA {
     return Array.from(visited);
   }
 
-  /**
-   * Renumbers all reachable states sequentially starting from 0.
-   */
   public renumber(): void {
     const states = this.getAllStates();
     states.forEach((state, index) => {
@@ -177,37 +174,29 @@ export class ThompsonBuilder {
   }
 
   private repetition(childNode: ASTNode, min: number, max: number): NFAFragment {
-    // 1. a*
     if (min === 0 && max === Infinity) {
       return this.star(this.buildFragment(childNode));
     }
-    // 2. a+
     if (min === 1 && max === Infinity) {
       return this.plus(this.buildFragment(childNode));
     }
-    // 3. a?
     if (min === 0 && max === 1) {
       return this.optional(this.buildFragment(childNode));
     }
-    // 4. a{0}
     if (min === 0 && max === 0) {
       return this.fromEmpty();
     }
 
     const frags: NFAFragment[] = [];
-
-    // Mandatory instances (min times)
     for (let i = 0; i < min; i++) {
       frags.push(this.buildFragment(childNode));
     }
 
-    // Unbounded continuation: a{min,}
     if (max === Infinity) {
       frags.push(this.star(this.buildFragment(childNode)));
       return this.concat(frags);
     }
 
-    // Bounded optional continuation: a{min, max}
     for (let i = 0; i < max - min; i++) {
       frags.push(this.optional(this.buildFragment(childNode)));
     }

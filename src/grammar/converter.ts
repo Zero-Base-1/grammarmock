@@ -19,7 +19,6 @@ export function nfaToRightLinearGrammar(
     const varName = stateToVarName(state);
     const rules: ProductionRule[] = [];
 
-    // If state is accepting, it produces epsilon (terminates)
     if (state.isAccept) {
       rules.push({ type: 'epsilon' });
     }

@@ -59,7 +59,6 @@ export class Lexer {
       } else if (char === '(') {
         const startPos = this.pos;
         if (this.input.startsWith('(?:', startPos)) {
-          // Non-capturing group: treated as standard grouping in regular grammars
           tokens.push({ type: TokenType.LPAREN, value: '(?:', position: startPos });
           this.pos += 3;
         } else if (
@@ -173,7 +172,6 @@ export class Lexer {
     const ch = this.input[this.pos];
     this.pos++;
 
-    // Backreference check: \1 through \9
     if (/^[1-9]$/.test(ch)) {
       throw new LexerError(
         `Backreferences (e.g. \\${ch}) require context-sensitive matching and cannot be represented in a Type-3 Right-Linear Grammar.`,
@@ -181,7 +179,6 @@ export class Lexer {
       );
     }
 
-    // Shorthand character classes
     if (ch === 'd') {
       return {
         type: TokenType.CHAR_CLASS,
@@ -263,12 +260,10 @@ export class Lexer {
       };
     }
 
-    // Common escaped literals
     if (ch === 't') return { type: TokenType.LITERAL, value: '\t', position: startPos };
     if (ch === 'n') return { type: TokenType.LITERAL, value: '\n', position: startPos };
     if (ch === 'r') return { type: TokenType.LITERAL, value: '\r', position: startPos };
 
-    // Hex escape \xHH
     if (ch === 'x' && this.pos + 2 <= this.len) {
       const hex = this.input.slice(this.pos, this.pos + 2);
       if (/^[0-9a-fA-F]{2}$/.test(hex)) {
@@ -281,7 +276,6 @@ export class Lexer {
       }
     }
 
-    // Standard escaped character (e.g. \., \+, \*, \\, \-, etc.)
     return {
       type: TokenType.LITERAL,
       value: ch,
@@ -302,7 +296,6 @@ export class Lexer {
     const ranges: Array<{ from: string; to: string }> = [];
     const chars: string[] = [];
 
-    // Check if initial char is ']' (can be treated as literal if first)
     if (this.pos < this.len && this.input[this.pos] === ']') {
       chars.push(']');
       this.pos++;
@@ -344,7 +337,6 @@ export class Lexer {
         this.pos++;
       }
 
-      // Check for range: e.g. a-z
       if (this.pos < this.len && this.input[this.pos] === '-' && this.pos + 1 < this.len && this.input[this.pos + 1] !== ']') {
         this.pos++; // skip '-'
         let nextVal: string;

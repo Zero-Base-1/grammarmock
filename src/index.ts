@@ -4,6 +4,7 @@ import { eliminateEpsilons } from './automata/epsilon.js';
 import { nfaToRightLinearGrammar } from './grammar/converter.js';
 import { formatGrammar } from './grammar/formatter.js';
 import { MockGenerator, GenerationOptions } from './generator/engine.js';
+import { SequentialGenerator } from './generator/sequential.js';
 import { RightLinearGrammar } from './grammar/types.js';
 import { printAST } from './ast/printer.js';
 
@@ -21,10 +22,8 @@ export * from './grammar/formatter.js';
 export * from './generator/prng.js';
 export * from './generator/sampler.js';
 export * from './generator/engine.js';
+export * from './generator/sequential.js';
 
-/**
- * Compiles a regex pattern into a formal Right-Linear Grammar.
- */
 export function compileGrammar(pattern: string, normalizeEpsilons = true): RightLinearGrammar {
   const ast = Parser.parse(pattern);
   const builder = new ThompsonBuilder();
@@ -32,18 +31,12 @@ export function compileGrammar(pattern: string, normalizeEpsilons = true): Right
   return nfaToRightLinearGrammar(nfa, normalizeEpsilons);
 }
 
-/**
- * Generates a single synthetic mock string complying with the given regex pattern.
- */
 export function generateMock(pattern: string, options: GenerationOptions = {}): string {
   const grammar = compileGrammar(pattern);
   const generator = new MockGenerator(grammar, options.seed);
   return generator.generate(options);
 }
 
-/**
- * Generates multiple synthetic mock strings complying with the given regex pattern.
- */
 export function generateBulk(
   pattern: string,
   count: number,

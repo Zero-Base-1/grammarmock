@@ -7,7 +7,6 @@ export function formatOutput(records: string[], format: OutputFormat): string {
     case 'csv': {
       const header = 'value';
       const rows = records.map((r) => {
-        // Escape quotes if needed
         if (r.includes('"') || r.includes(',') || r.includes('\n')) {
           return `"${r.replace(/"/g, '""')}"`;
         }

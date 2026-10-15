@@ -1,17 +1,22 @@
 import { RightLinearGrammar, ProductionRule } from '../grammar/types.js';
 import { PRNG } from './prng.js';
 import { sampleTerminal } from './sampler.js';
+import { SequentialGenerator } from './sequential.js';
+
+export type GenerationMode = 'random' | 'chronological' | 'sequential';
 
 export interface GenerationOptions {
   maxRepeat?: number;
   seed?: number;
   maxTotalSteps?: number;
+  mode?: GenerationMode;
 }
 
 export class MockGenerator {
   private grammar: RightLinearGrammar;
   private prng: PRNG;
   private minDistanceToAccept = new Map<string, number>();
+  private sequentialGen?: SequentialGenerator;
 
   constructor(grammar: RightLinearGrammar, seed?: number) {
     this.grammar = grammar;
@@ -19,12 +24,7 @@ export class MockGenerator {
     this.computeDistancesToAccept();
   }
 
-  /**
-   * Precomputes shortest path distance from each variable to an accepting (epsilon) rule
-   * using backwards breadth-first search.
-   */
   private computeDistancesToAccept(): void {
-    // Reverse adjacency: targetVar -> sourceVar[]
     const reverseAdj = new Map<string, string[]>();
     const queue: string[] = [];
 
@@ -51,7 +51,6 @@ export class MockGenerator {
       }
     }
 
-    // BFS backwards from accept states
     while (queue.length > 0) {
       const current = queue.shift()!;
       const currentDist = this.minDistanceToAccept.get(current)!;
@@ -67,6 +66,11 @@ export class MockGenerator {
   }
 
   public generate(options: GenerationOptions = {}): string {
+    if (options.mode === 'chronological' || options.mode === 'sequential') {
+      const bulk = this.generateBulk(1, options);
+      return bulk[0] ?? '';
+    }
+
     const maxRepeat = options.maxRepeat ?? 5;
     const maxTotalSteps = options.maxTotalSteps ?? 2000;
 
@@ -86,17 +90,14 @@ export class MockGenerator {
         break;
       }
 
-      // If visit count exceeds maxRepeat, force loop exit
       let candidates: ProductionRule[] = rules;
 
       if (visits >= maxRepeat) {
-        // If epsilon is available, exit immediately
         const epsilonRule = rules.find((r) => r.type === 'epsilon');
         if (epsilonRule) {
           break;
         }
 
-        // Otherwise, filter rules to those that strictly decrease distance to accept
         const currentDist = this.minDistanceToAccept.get(currentVar) ?? Infinity;
         const progressRules = rules.filter((r) => {
           if (r.type === 'epsilon') return true;
@@ -109,7 +110,6 @@ export class MockGenerator {
         }
       }
 
-      // Pick random rule from candidates
       const chosenRule = this.prng.choice(candidates);
 
       if (chosenRule.type === 'epsilon') {
@@ -132,6 +132,16 @@ export class MockGenerator {
   }
 
   public generateBulk(count: number, options: GenerationOptions = {}): string[] {
+    if (options.mode === 'chronological' || options.mode === 'sequential') {
+      if (!this.sequentialGen) {
+        this.sequentialGen = new SequentialGenerator(this.grammar);
+      }
+      return this.sequentialGen.generateBulk(count, {
+        maxRepeat: options.maxRepeat,
+        maxTotalSteps: options.maxTotalSteps,
+      });
+    }
+
     const results: string[] = [];
     for (let i = 0; i < count; i++) {
       results.push(this.generate(options));

@@ -35,5 +35,19 @@ describe('100% Compliance Verification Suite', () => {
         expect(matches).toBe(true);
       }
     });
+
+    it(`guarantees 100% regex compliance in chronological mode for: ${name} (${pattern})`, () => {
+      const count = 20;
+      const records = generateBulk(pattern, count, { mode: 'chronological', maxRepeat: 4 });
+      const regex = new RegExp(pattern);
+
+      expect(records.length).toBeGreaterThan(0);
+
+      for (let i = 0; i < records.length; i++) {
+        const str = records[i];
+        const matches = regex.test(str);
+        expect(matches).toBe(true);
+      }
+    });
   }
 });

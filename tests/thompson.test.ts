@@ -32,7 +32,6 @@ describe('Thompson NFA & Grammar Conversion', () => {
     const normalized = eliminateEpsilons(nfa);
     const allStates = normalized.getAllStates();
 
-    // Verify there are no epsilon transitions in normalized NFA
     for (const state of allStates) {
       for (const t of state.transitions) {
         expect(t.label.type).not.toBe('epsilon');

@@ -39,4 +39,15 @@ describe('Mock Generator', () => {
       }
     }
   });
+
+  it('generates strictly chronological / sequential output when mode is chronological', () => {
+    const results = generateBulk('\\d{2}', 5, { mode: 'chronological' });
+    expect(results).toEqual(['00', '01', '02', '03', '04']);
+
+    const alphaResults = generateBulk('^[A-B]{2}$', 4, { mode: 'chronological' });
+    expect(alphaResults).toEqual(['AA', 'AB', 'BA', 'BB']);
+
+    const prefixResults = generateBulk('^(ID|REF)-\\d{2}$', 4, { mode: 'chronological' });
+    expect(prefixResults).toEqual(['ID-00', 'ID-01', 'ID-02', 'ID-03']);
+  });
 });

@@ -5,7 +5,7 @@ import { printAST } from '../ast/printer.js';
 import { ThompsonBuilder } from '../automata/nfa.js';
 import { nfaToRightLinearGrammar } from '../grammar/converter.js';
 import { formatGrammar } from '../grammar/formatter.js';
-import { MockGenerator } from '../generator/engine.js';
+import { MockGenerator, GenerationMode } from '../generator/engine.js';
 import { formatOutput, OutputFormat } from './formatters.js';
 
 export function runCLI(argv = process.argv): void {
@@ -26,12 +26,31 @@ export function runCLI(argv = process.argv): void {
       (v) => parseInt(v, 10),
       5
     )
+    .option(
+      '-c, --chronological',
+      'Generate records in chronological / sequential order instead of random'
+    )
+    .option(
+      '--sequential',
+      'Alias for --chronological'
+    )
+    .option(
+      '--order <mode>',
+      'Generation mode: random, chronological, or sequential',
+      'random'
+    )
     .option('--show-ast', 'Print the parsed Abstract Syntax Tree')
     .option('--show-grammar', 'Print the formal Right-Linear Grammar productions')
     .option('--raw-grammar', 'Show raw grammar with epsilon unit rules before normalization')
     .option('--verify', 'Validate each generated string against native RegExp fullmatch')
     .action((pattern: string, options) => {
       try {
+        // Determine generation mode
+        let mode: GenerationMode = 'random';
+        if (options.chronological || options.sequential || options.order === 'chronological' || options.order === 'sequential') {
+          mode = 'chronological';
+        }
+
         // 1. AST Parsing
         const ast = Parser.parse(pattern);
         if (options.showAst) {
@@ -50,16 +69,16 @@ export function runCLI(argv = process.argv): void {
           console.log('');
         }
 
-        // 3. Procedural Generation
+        // 3. Generation (Random or Chronological)
         const generator = new MockGenerator(grammar, options.seed);
         const records = generator.generateBulk(options.count, {
           maxRepeat: options.maxRepeat,
+          mode,
         });
 
         // 4. Verification Check (--verify)
         if (options.verify) {
           let testPattern = pattern;
-          // Normalize anchors for standard fullmatch testing
           if (!testPattern.startsWith('^')) testPattern = '^' + testPattern;
           if (!testPattern.endsWith('$')) testPattern = testPattern + '$';
 
@@ -75,9 +94,13 @@ export function runCLI(argv = process.argv): void {
           }
 
           if (failureCount === 0) {
-            console.error(`✔ 100% Compliance Verified (${records.length}/${records.length} records matched /${testPattern}/)`);
+            console.error(
+              `✔ 100% Compliance Verified (${records.length}/${records.length} records matched /${testPattern}/)`
+            );
           } else {
-            console.error(`❌ Verification failed: ${failureCount} of ${records.length} records did not match.`);
+            console.error(
+              `❌ Verification failed: ${failureCount} of ${records.length} records did not match.`
+            );
             process.exit(1);
           }
         }

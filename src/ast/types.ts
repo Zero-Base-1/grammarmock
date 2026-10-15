@@ -25,7 +25,7 @@ export interface CharClassNode {
   negated: boolean;
   ranges: CharRange[];
   chars: string[];
-  isWildcard?: boolean; // for '.'
+  isWildcard?: boolean;
 }
 
 export interface ConcatNode {
@@ -42,5 +42,5 @@ export interface RepetitionNode {
   type: 'repetition';
   child: ASTNode;
   min: number;
-  max: number; // Infinity for unbounded (*, +, {n,})
+  max: number;
 }

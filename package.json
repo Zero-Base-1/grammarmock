@@ -9,10 +9,12 @@
     "grammarmock": "./bin/grammarmock.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && vite build",
+    "dev": "vite --host 127.0.0.1",
     "test": "vitest run",
     "test:watch": "vitest",
-    "start": "node ./bin/grammarmock.js"
+    "start": "node ./bin/grammarmock.js",
+    "preview": "vite preview --host 127.0.0.1"
   },
   "keywords": [
     "mock-data",
@@ -29,6 +31,7 @@
   "devDependencies": {
     "@types/node": "^22.5.0",
     "typescript": "^5.5.4",
-    "vitest": "^2.0.5"
+    "vitest": "^2.0.5",
+    "vite": "^6.4.1"
   }
 }

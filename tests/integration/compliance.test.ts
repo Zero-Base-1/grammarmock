@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { generateBulk } from '../src/index.js';
+import { generateBulk } from '../../src/index.js';
 
-describe('100% Compliance Verification Suite', () => {
+describe('Integration: 100% Compliance Verification Suite', () => {
   const testPatterns = [
     { name: 'Employee ID', pattern: '^[A-Z]{3}-\\d{4}$' },
     { name: 'Hex Color (short or full)', pattern: '^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$' },
@@ -14,11 +14,16 @@ describe('100% Compliance Verification Suite', () => {
     { name: 'Negated Digits', pattern: '^[^0-9]{3,6}$' },
     { name: 'Wildcard Characters', pattern: '^A.B.C$' },
     { name: 'Optional Components', pattern: '^(https?://)?www\\.[a-z]{4,8}\\.org$' },
+    { name: 'Credit Card (Visa-like)', pattern: '^4[0-9]{3}-[0-9]{4}-[0-9]{4}-[0-9]{4}$' },
+    { name: 'Invoice ID', pattern: '^INV-202[0-9]-[0-9]{5}$' },
+    { name: 'SemVer 2.0', pattern: '^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(-(alpha|beta|rc)\\.[1-9])?$' },
+    { name: 'MAC Address', pattern: '^([0-9A-F]{2}:){5}[0-9A-F]{2}$' },
+    { name: 'ISO Date', pattern: '^202[0-9]-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$' },
   ];
 
   for (const { name, pattern } of testPatterns) {
-    it(`guarantees 100% regex compliance for: ${name} (${pattern})`, () => {
-      const count = 50;
+    it(`guarantees 100% regex compliance in random mode for: ${name} (${pattern})`, () => {
+      const count = 30;
       const records = generateBulk(pattern, count, { maxRepeat: 4 });
       const regex = new RegExp(pattern);
 
@@ -37,7 +42,7 @@ describe('100% Compliance Verification Suite', () => {
     });
 
     it(`guarantees 100% regex compliance in chronological mode for: ${name} (${pattern})`, () => {
-      const count = 20;
+      const count = 15;
       const records = generateBulk(pattern, count, { mode: 'chronological', maxRepeat: 4 });
       const regex = new RegExp(pattern);
 

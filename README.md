@@ -1,7 +1,8 @@
 # GrammarMock 🎲📐
 > **Automata-Driven Procedural Mock Data Generator**
 
-[![Tests](https://img.shields.io/badge/tests-passed-brightgreen.svg)]()
+[![CI & Deploy](https://github.com/Zero-Base-1/grammarmock/actions/workflows/deploy.yml/badge.svg)](https://github.com/Zero-Base-1/grammarmock/actions/workflows/deploy.yml)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-black?logo=github)](https://zero-base-1.github.io/grammarmock/)
 [![Type-3 Grammar](https://img.shields.io/badge/Chomsky-Type--3%20Regular-blue.svg)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
